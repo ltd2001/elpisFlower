@@ -1,0 +1,288 @@
+[
+  {
+    "label": "AZM",
+    "baseColor": [
+      0,
+      0,
+      0
+    ],
+    "emblemColor": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "BLM",
+    "baseColor": [
+      53,
+      43,
+      65
+    ],
+    "emblemColor": [
+      168,
+      128,
+      220
+    ]
+  },
+  {
+    "label": "BRD",
+    "baseColor": [
+      92,
+      125,
+      38
+    ],
+    "emblemColor": [
+      233,
+      240,
+      102
+    ]
+  },
+  {
+    "label": "DRG",
+    "baseColor": [
+      81,
+      93,
+      159
+    ],
+    "emblemColor": [
+      120,
+      178,
+      255
+    ]
+  },
+  {
+    "label": "DRK",
+    "baseColor": [
+      130,
+      21,
+      74
+    ],
+    "emblemColor": [
+      240,
+      146,
+      25
+    ]
+  },
+  {
+    "label": "DNC",
+    "baseColor": [
+      237,
+      197,
+      189
+    ],
+    "emblemColor": [
+      240,
+      197,
+      153
+    ]
+  },
+  {
+    "label": "GNB",
+    "baseColor": [
+      175,
+      149,
+      54
+    ],
+    "emblemColor": [
+      249,
+      250,
+      114
+    ]
+  },
+  {
+    "label": "MCH",
+    "baseColor": [
+      86,
+      235,
+      231
+    ],
+    "emblemColor": [
+      133,
+      249,
+      240
+    ]
+  },
+  {
+    "label": "MNK",
+    "baseColor": [
+      168,
+      127,
+      42
+    ],
+    "emblemColor": [
+      246,
+      235,
+      58
+    ]
+  },
+  {
+    "label": "NIN",
+    "baseColor": [
+      75,
+      69,
+      89
+    ],
+    "emblemColor": [
+      253,
+      31,
+      49
+    ]
+  },
+  {
+    "label": "PCT",
+    "baseColor": [
+      114,
+      114,
+      181
+    ],
+    "emblemColor": [
+      245,
+      102,
+      168
+    ]
+  },
+  {
+    "label": "PLD",
+    "baseColor": [
+      125,
+      147,
+      160
+    ],
+    "emblemColor": [
+      204,
+      254,
+      254
+    ]
+  },
+  {
+    "label": "RDM",
+    "baseColor": [
+      236,
+      74,
+      219
+    ],
+    "emblemColor": [
+      193,
+      91,
+      242
+    ]
+  },
+  {
+    "label": "RPR",
+    "baseColor": [
+      53,
+      56,
+      61
+    ],
+    "emblemColor": [
+      240,
+      234,
+      115
+    ]
+  },
+  {
+    "label": "SAM",
+    "baseColor": [
+      115,
+      85,
+      49
+    ],
+    "emblemColor": [
+      252,
+      226,
+      92
+    ]
+  },
+  {
+    "label": "SCH",
+    "baseColor": [
+      89,
+      88,
+      206
+    ],
+    "emblemColor": [
+      220,
+      241,
+      204
+    ]
+  },
+  {
+    "label": "SGE",
+    "baseColor": [
+      187,
+      213,
+      223
+    ],
+    "emblemColor": [
+      175,
+      245,
+      252
+    ]
+  },
+  {
+    "label": "SMN",
+    "baseColor": [
+      82,
+      120,
+      54
+    ],
+    "emblemColor": [
+      139,
+      220,
+      31
+    ]
+  },
+  {
+    "label": "VPR",
+    "baseColor": [
+      124,
+      46,
+      22
+    ],
+    "emblemColor": [
+      252,
+      220,
+      129
+    ]
+  },
+  {
+    "label": "WAR",
+    "baseColor": [
+      72,
+      17,
+      13
+    ],
+    "emblemColor": [
+      238,
+      142,
+      136
+    ]
+  },
+  {
+    "label": "WHM",
+    "baseColor": [
+      197,
+      190,
+      139
+    ],
+    "emblemColor": [
+      252,
+      247,
+      217
+    ]
+  },
+  {
+    "label": "AST",
+    "baseColor": [
+      160,
+      110,
+      68
+    ],
+    "emblemColor": [
+      255,
+      252,
+      104
+    ]
+  }
+]
