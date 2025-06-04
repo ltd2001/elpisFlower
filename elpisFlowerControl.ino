@@ -1,13 +1,15 @@
 /* Make elips flower glow project.
  * Control chip code ver 0.0.1
+ * ESP32
  */
 
 #include <FastLED.h>
 
 // flower led section
 #define NUM_LEDS_FLOWER 2
-#define FLOWER_LED_PIN D1
+#define FLOWER_LED_PIN 27
 CRGB flowerLED[NUM_LEDS_FLOWER];
+CRGB rainbowColor[7] = {CRGB::Red, CRGB::Orange, CRGB::Yellow, CRGB::Green, CRGB::Aqua, CRGB::Blue, CRGB::Purple};
 
 //flow control
 /* disable temp, maybe usefull
@@ -63,15 +65,19 @@ void setFlowerLampWorstCase(){
 //	Serial.println("Lamp red");
 }
 
+void rainbowbBreath(int breath = 100){
+	for(int step = 0; step < 7; step++){
+		for(int brightnessStep = 0; brightnessStep < 64; brightnessStep++){
+			FastLED.showColor(rainbowColor[step], (brightnessStep + 1) );
+			delay(breath);
+		}
+		for(int brightnessStep = 63; brightnessStep > 0; brightnessStep--){
+			FastLED.showColor(rainbowColor[step], (brightnessStep + 1) );
+			delay(breath);
+		}
+	}
+}
+
 void loop() {
-	setFlowerLampOff();
-	delay(250);
-	setFlowerLampRed(0);
-	delay(250);
-	setFlowerLampOff();
-	delay(250);
-	setFlowerLampRed(1);
-	delay(250);
-	setFlowerLampRed(0);
-	delay(2000);
+	rainbowbBreath(125);
 }
