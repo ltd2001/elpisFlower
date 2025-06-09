@@ -6,7 +6,7 @@
 #include <SPI.h>
 #include <MFRC522.h>
 
-#define LED_PIN 5
+#define LED_PIN 27
 #define NUM_LEDS 2
 CRGB leds[NUM_LEDS];
 
@@ -44,6 +44,8 @@ bool readRFID(String &uid, String &label) {
 
   rfid.PICC_HaltA();
   rfid.PCD_StopCrypto1();
+  
+  Serial.println(label);
   return true;
 }
 
@@ -62,10 +64,10 @@ void writeRFID(String label) {
 void applyLED(String label) {
   if (label == "PLD") {
     leds[0] = CRGB::Blue;
-    leds[1] = CRGB::White;
+    leds[1] = CRGB::Aqua;
   } else if (label == "MCH") {
-    leds[0] = CRGB::Red;
-    leds[1] = CRGB::Green;
+    leds[0] = CRGB::Aqua;
+    leds[1] = CRGB::Teal;
   } else {
     leds[0] = CRGB::Black;
     leds[1] = CRGB::Black;
@@ -103,6 +105,7 @@ void handleStatus() {
   json += "\"present\":" + String(present ? "true" : "false") + ",";
   json += "\"label\":\"" + lastLabel + "\"}";
   server.send(200, "application/json", json);
+  Serial.println(json);
 }
 
 void handleWrite() {
@@ -118,11 +121,11 @@ void handleWrite() {
 
 void setup() {
   Serial.begin(115200);
-  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812B, LED_PIN>(leds, NUM_LEDS);
   FastLED.clear(); FastLED.show();
 
   setupRFID();
-  WiFi.softAP("ESP32-RFID", "12345678");
+  WiFi.softAP("ESP32-FLOWER-MAIN", "12345678");
 
   if (!LittleFS.begin()) {
     Serial.println("LittleFS 啟動失敗");

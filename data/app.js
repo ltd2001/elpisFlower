@@ -4,4 +4,4 @@ function updateStatus() {
     document.getElementById("data").innerText = data.label || "--";
   });
 }
-setInterval(updateStatus, 5000);
+setInterval(updateStatus, 1000);
