@@ -10,8 +10,8 @@
 #define NUM_LEDS 2
 CRGB leds[NUM_LEDS];
 
-#define RST_PIN 22
-#define SS_PIN 21
+#define RST_PIN 21
+#define SS_PIN 22
 MFRC522 rfid(SS_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;
 
@@ -19,6 +19,12 @@ WebServer server(80);
 
 String lastUID = "";
 String lastLabel = "";
+String thisUID = "";
+String thisLabel = "";
+bool present = false;
+
+int previousMillis = 0;
+int refreshRate = 250;
 
 void setupRFID() {
   SPI.begin();
@@ -27,25 +33,65 @@ void setupRFID() {
 }
 
 bool readRFID(String &uid, String &label) {
-  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return false;
+  uid = ""; label = "";
+  
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()){
+    Serial.println("Read fail.");
+    return false;
+  } 
 
-  uid = "";
+  // 提取卡片的 UID
   for (byte i = 0; i < rfid.uid.size; i++) uid += String(rfid.uid.uidByte[i], HEX);
+  Serial.print("ReadRFID: uid= ");
+  Serial.println(uid);
 
+  // 嘗試讀取卡片的第一個區塊，來判斷卡片是否加密
   byte buffer[18]; byte len = 18;
-  if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) return false;
-  if (rfid.MIFARE_Read(4, buffer, &len) != MFRC522::STATUS_OK) return false;
+  MFRC522::StatusCode status = rfid.MIFARE_Read(4, buffer, &len);  // 嘗試讀取
 
-  label = "";
-  for (int i = 0; i < 16; i++) {
-    if (buffer[i] == 0) break;
-    label += (char)buffer[i];
-  }
+  if (status == MFRC522::STATUS_OK) {
+    // 如果成功讀取，則表示卡片未加密
+    Serial.println("卡片未加密，直接讀取資料");
+    // 讀取標籤資料
+    label = "";
+    for (int i = 0; i < 16; i++) {
+      if (buffer[i] == 0) break;
+      label += (char)buffer[i];
+    }
+    Serial.print("ReadRFID: label= ");
+    Serial.println(label);
+  } else {
+    // 如果讀取失敗並返回身份驗證錯誤，則表示卡片加密
+    Serial.println("卡片加密，嘗試使用密鑰進行身份驗證");
+    
+    // 嘗試進行身份驗證
+    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
+      Serial.print("Authentication failed: ");
+      Serial.println(rfid.GetStatusCodeName(status));  // 打印身份驗證錯誤
+      return false;
+    }
 
+    // 成功身份驗證後，讀取資料
+    status = rfid.MIFARE_Read(4, buffer, &len);  // 再次嘗試讀取
+    if (status != MFRC522::STATUS_OK) {
+      Serial.print("Read failed: ");
+      Serial.println(rfid.GetStatusCodeName(status));  // 打印讀取錯誤
+      return false;
+    }
+
+    // 讀取標籤資料
+    label = "";
+    for (int i = 0; i < 16; i++) {
+      if (buffer[i] == 0) break;
+      label += (char)buffer[i];
+    }
+    Serial.print("ReadRFID: label= ");
+    Serial.println(label);
+  } 
+
+  // 停止與卡片的通訊
   rfid.PICC_HaltA();
   rfid.PCD_StopCrypto1();
-  
-  Serial.println(label);
   return true;
 }
 
@@ -94,17 +140,11 @@ void handleJS() {
 }
 
 void handleStatus() {
-  String uid, label;
-  bool present = readRFID(uid, label);
-  if (present && uid != lastUID) {
-    lastUID = uid;
-    lastLabel = label;
-    applyLED(label);
-  }
   String json = "{";
   json += "\"present\":" + String(present ? "true" : "false") + ",";
   json += "\"label\":\"" + lastLabel + "\"}";
   server.send(200, "application/json", json);
+  Serial.print("handleJson: ");
   Serial.println(json);
 }
 
@@ -120,7 +160,7 @@ void handleWrite() {
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   FastLED.addLeds<WS2812B, LED_PIN>(leds, NUM_LEDS);
   FastLED.clear(); FastLED.show();
 
@@ -142,4 +182,19 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  if(millis() - previousMillis > refreshRate){
+	present = readRFID(thisUID, thisLabel);
+	  if (present && thisUID != lastUID) {
+		lastUID = thisUID;
+		lastLabel = thisLabel;
+		applyLED(thisLabel);
+	  }
+    previousMillis = millis();
+  }
+  if(lastLabel == ""){
+	  FastLED.showColor(CRGB::Red, 31);
+  }
+  else{
+	  FastLED.showColor(CRGB::Green, 31);
+  }
 }
