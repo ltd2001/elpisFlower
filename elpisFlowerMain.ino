@@ -96,12 +96,49 @@ bool readRFID(String &uid, String &label) {
 }
 
 void writeRFID(String label) {
-  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;
-  if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) return;
+  Serial.println("[寫入] 嘗試偵測卡片...");
+  if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) {
+    Serial.println("[寫入] 沒有偵測到卡片");
+    return;
+  }
+
+  Serial.println("[寫入] 卡片偵測成功，開始身份驗證...");
+  if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
+    Serial.println("[寫入] 身份驗證失敗");
+    return;
+  }
 
   byte buffer[16] = {0};
   label.getBytes(buffer, 16);
-  rfid.MIFARE_Write(4, buffer, 16);
+
+  MFRC522::StatusCode status = rfid.MIFARE_Write(4, buffer, 16);
+  if (status != MFRC522::STATUS_OK) {
+    Serial.print("[寫入] 寫入失敗：");
+    Serial.println(rfid.GetStatusCodeName(status));
+    return;
+  } else {
+    Serial.println("[寫入] 寫入成功，進行驗證...");
+  }
+
+  // 寫入成功，嘗試再次讀取驗證
+  byte readBuffer[18];
+  byte len = 18;
+  String verifyLabel = "";
+
+  if (rfid.MIFARE_Read(4, readBuffer, &len) == MFRC522::STATUS_OK) {
+    for (int i = 0; i < 16; i++) {
+      if (readBuffer[i] == 0) break;
+      verifyLabel += (char)readBuffer[i];
+    }
+    if (verifyLabel == label) {
+      Serial.println("[驗證] ✅ 寫入驗證成功！");
+    } else {
+      Serial.print("[驗證] ❌ 寫入資料不一致，讀到：");
+      Serial.println(verifyLabel);
+    }
+  } else {
+    Serial.println("[驗證] ❌ 讀取資料失敗，無法驗證");
+  }
 
   rfid.PICC_HaltA();
   rfid.PCD_StopCrypto1();
