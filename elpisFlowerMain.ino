@@ -14,6 +14,7 @@ CRGB leds[NUM_LEDS];
 #define SS_PIN 22
 MFRC522 rfid(SS_PIN, RST_PIN);
 MFRC522::MIFARE_Key key;
+MFRC522::StatusCode status;
 
 WebServer server(80);
 
@@ -24,7 +25,7 @@ String thisLabel = "";
 bool present = false;
 
 int previousMillis = 0;
-int refreshRate = 250;
+int refreshRate = 1000;
 
 void setupRFID() {
   SPI.begin();
@@ -47,7 +48,7 @@ bool readRFID(String &uid, String &label) {
 
   // 嘗試讀取卡片的第一個區塊，來判斷卡片是否加密
   byte buffer[18]; byte len = 18;
-  MFRC522::StatusCode status = rfid.MIFARE_Read(4, buffer, &len);  // 嘗試讀取
+  /*MFRC522::StatusCode status = rfid.MIFARE_Read(4, buffer, &len);  // 嘗試讀取
 
   if (status == MFRC522::STATUS_OK) {
     // 如果成功讀取，則表示卡片未加密
@@ -62,12 +63,16 @@ bool readRFID(String &uid, String &label) {
     Serial.println(label);
   } else {
     // 如果讀取失敗並返回身份驗證錯誤，則表示卡片加密
-    Serial.println("卡片加密，嘗試使用密鑰進行身份驗證");
+	Serial.println(rfid.GetStatusCodeName(status));
+    Serial.println("卡片加密，嘗試使用密鑰進行身份驗證");*/
     
     // 嘗試進行身份驗證
-    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
+	status = rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(rfid.uid));
+    if ( status != MFRC522::STATUS_OK) {
       Serial.print("Authentication failed: ");
       Serial.println(rfid.GetStatusCodeName(status));  // 打印身份驗證錯誤
+	  rfid.PICC_HaltA();
+      rfid.PCD_StopCrypto1();
       return false;
     }
 
@@ -76,6 +81,8 @@ bool readRFID(String &uid, String &label) {
     if (status != MFRC522::STATUS_OK) {
       Serial.print("Read failed: ");
       Serial.println(rfid.GetStatusCodeName(status));  // 打印讀取錯誤
+	  rfid.PICC_HaltA();
+      rfid.PCD_StopCrypto1();
       return false;
     }
 
@@ -87,7 +94,7 @@ bool readRFID(String &uid, String &label) {
     }
     Serial.print("ReadRFID: label= ");
     Serial.println(label);
-  } 
+  //} 
 
   // 停止與卡片的通訊
   rfid.PICC_HaltA();
