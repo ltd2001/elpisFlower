@@ -18,7 +18,7 @@ MFRC522::MIFARE_Key key;
 WebServer server(80);
 
 int previousMillis = 0;
-int refreshRate = 1000;
+int refreshRate = 2500;
 
 bool rfid_present = false;
 String rfid_uid = "";
@@ -62,22 +62,6 @@ bool readRFID(String &uid, String &label) {
   // 嘗試讀取卡片的第一個區塊，來判斷卡片是否加密
   byte buffer[18]; byte len = 18;
   MFRC522::StatusCode status; //宣告status項目
-/*
-  if (status == MFRC522::STATUS_OK) {
-    // 如果成功讀取，則表示卡片未加密
-    Serial.println("卡片未加密，直接讀取資料");
-    // 讀取標籤資料
-    label = "";
-    for (int i = 0; i < 16; i++) {
-      if (buffer[i] == 0) break;
-      label += (char)buffer[i];
-    }
-    Serial.print("ReadRFID: label= ");
-    Serial.println(label);
-  } else {
-    // 如果讀取失敗並返回身份驗證錯誤，則表示卡片加密
-    Serial.println("卡片加密，嘗試使用密鑰進行身份驗證");
-    */
 	
     // 嘗試進行身份驗證
     if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(rfid.uid)) != MFRC522::STATUS_OK) {
@@ -115,22 +99,32 @@ bool readRFID(String &uid, String &label) {
 }
 
 bool writeRFID(String label) {
+
   Serial.println("[寫入] 嘗試偵測卡片...");
   
-  if(rfid.PICC_IsNewCardPresent()){
-	Serial.println("[寫入] Not same card. Be aware!"); 
+  if(!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()){
+	Serial.println("[寫入] Err."); 
+    rfid.PICC_HaltA();
+    rfid.PCD_StopCrypto1();
 	return false;  
   }
   
-  if (rfid.PICC_ReadCardSerial() && rfid.PICC_ReadCardSerial()){
-    Serial.println("[寫入] Not able select card.");
+ /* if (!rfid.PICC_ReadCardSerial()){
+    Serial.print("[寫入] Not able select card: ");
+	Serial.println(result);
     return false;
-  } 
+  } */
+  
+  String writeUid = "";
+  
+  for (byte i = 0; i < rfid.uid.size; i++) writeUid += String(rfid.uid.uidByte[i], HEX);
+  Serial.print("WriteRFID: writeUid= ");
+  Serial.println(writeUid);
   
   MFRC522::StatusCode status; //宣告status項目
   
   Serial.println("[寫入] 卡片偵測成功，開始身份驗證...");
-  status = rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid));
+  status = rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 7, &key, &(rfid.uid));
   if (status != MFRC522::STATUS_OK) {
     Serial.print("[寫入] 身份驗證失敗：");
 	Serial.println(rfid.GetStatusCodeName(status));
