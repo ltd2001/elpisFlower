@@ -18,7 +18,7 @@ MFRC522::MIFARE_Key key;
 WebServer server(80);
 
 int previousMillis = 0;
-int refreshRate = 2500;
+int refreshRate = 1450;
 
 bool rfid_present = false;
 String rfid_uid = "";
@@ -40,7 +40,7 @@ void setupRFID() {
 }
 
 bool readRFID(String &uid, String &label) {
-	
+		
   if(!rfid.PICC_IsNewCardPresent()){
 	Serial.println(F("Same Card.")); 
 	return false;  
@@ -72,7 +72,6 @@ bool readRFID(String &uid, String &label) {
     }
 
     // 成功身份驗證後，讀取資料
-	byte buffer[18]; byte len = 18;
     status = rfid.MIFARE_Read(4, buffer, &len);
     if (status != MFRC522::STATUS_OK) {
       Serial.print(F("Read failed: "));
@@ -98,6 +97,8 @@ bool readRFID(String &uid, String &label) {
 }
 
 void writeRFID(String label) {
+	
+	rfid.PCD_Init();
 
   if (!rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) return;
   if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(rfid.uid)) != MFRC522::STATUS_OK) return;
@@ -117,6 +118,9 @@ void applyLED(String label) {
   } else if (label == "MCH") {
     leds[0] = CRGB::Aqua;
     leds[1] = CRGB::Teal;
+  } else if (label == "AZM") {
+    leds[0] = CRGB::Orange;
+    leds[1] = CRGB::Yellow;
   } else {
     leds[0] = CRGB::Black;
     leds[1] = CRGB::Black;
@@ -207,6 +211,7 @@ void handleConfirmWrite() {
 void setup() {
   Serial.begin(9600);
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(128);
   FastLED.clear(); FastLED.show();
 
   setupRFID();
