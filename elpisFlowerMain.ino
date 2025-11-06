@@ -112,12 +112,13 @@ void writeRFID(String label) {
 }
 
 void applyLED(String label) {
+	//[0]down [1]upper
   if (label == "PLD") {
     leds[0] = CRGB::Blue;
     leds[1] = CRGB::Aqua;
   } else if (label == "MCH") {
-    leds[0] = CRGB::Aqua;
-    leds[1] = CRGB::Teal;
+    leds[0] = CRGB(67, 118, 29);
+    leds[1] = CRGB(104, 171, 56);
   } else if (label == "AZM") {
     leds[0] = CRGB::Orange;
     leds[1] = CRGB::Yellow;
