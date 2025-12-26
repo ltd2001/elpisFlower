@@ -35,7 +35,7 @@
 
 認真的？
 
-那請 [看這裡]()
+那請 [看這裡](https://github.com/ltd2001/elpisFlower/blob/main/TEARDOWN.md)
 
 ## 軟體開發環境
 
@@ -183,4 +183,4 @@ This project is not affiliated with or endorsed by SQUARE ENIX.
 
 ---
 
-README ver 1.0.0
+README ver 1.0.1
