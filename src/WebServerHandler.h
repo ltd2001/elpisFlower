@@ -3,6 +3,7 @@
 
 #include <WebServer.h>
 #include <LittleFS.h>
+#include <FastLED.h>
 
 class WebServerHandler {
 private:
@@ -12,6 +13,7 @@ private:
   
   void (*writeCallback)(String);
   void (*reloadColorsCallback)();
+  void (*setColorCallback)(CRGB, CRGB); // 手動選色的回呼函數
   
   void handleRoot() {
     File file = LittleFS.open("/index.html", "r");
@@ -20,6 +22,35 @@ private:
       file.close();
     } else {
       server.send(404, "text/plain", "index.html not found");
+    }
+  }
+
+  void handleColorPage() {
+    File file = LittleFS.open("/color.html", "r");
+    if (file) { server.streamFile(file, "text/html"); file.close(); }
+    else { server.send(404, "text/plain", "color.html not found"); }
+  }
+
+  void handleSetColor() {
+    if (!server.hasArg("lower") || !server.hasArg("upper")) {
+    server.send(400, "text/plain", "Missing Parameters");
+    return;
+    }
+
+    // 解析 Hex 顏色字串為 CRGB
+    auto parseHex = [](String hex) -> CRGB {
+    if (hex.startsWith("#")) hex.remove(0, 1);
+    return CRGB(strtol(hex.c_str(), NULL, 16));
+    };
+
+    CRGB lower = parseHex(server.arg("lower"));
+    CRGB upper = parseHex(server.arg("upper"));
+
+    if (setColorCallback) {
+    setColorCallback(lower, upper);
+    server.send(200, "text/plain", "OK");
+    } else {
+    server.send(500, "text/plain", "Callback not set");
     }
   }
   
@@ -104,6 +135,10 @@ public:
   void setReloadColorsCallback(void (*callback)()) {
     reloadColorsCallback = callback;
   }
+
+  void setSetColorCallback(void (*callback)(CRGB, CRGB)) {
+    setColorCallback = callback;
+  }
   
   void begin() {
     server.on("/", [this]() { handleRoot(); });
@@ -113,6 +148,8 @@ public:
     server.on("/write", HTTP_POST, [this]() { handleWrite(); });
     server.on("/reload_colors", HTTP_POST, [this]() { handleReloadColors(); });
     server.on("/colors.json", [this]() { handleGetColors(); });
+    server.on("/color.html", [this]() { handleColorPage(); });
+    server.on("/set_color", HTTP_POST, [this]() { handleSetColor(); });
     
     server.begin();
     Serial.println(F("Web Server 已啟動"));

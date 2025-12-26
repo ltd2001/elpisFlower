@@ -46,6 +46,12 @@ void onReloadColors() {
   }
 }
 
+// 在全域區塊新增回呼實作
+void onSetManualColor(CRGB lower, CRGB upper) {
+    Serial.println(F("手動設定顏色 (立即切換)"));
+    ledController.setColorImmediate(lower, upper); // 使用立即切換
+}
+
 void setup() {
   Serial.begin(9600);
   Serial.println(F("\n=== Elpis Flower 初始化 ==="));
@@ -79,6 +85,7 @@ void setup() {
   webServer.setRFIDStatus(&rfid_present, &rfid_label);
   webServer.setWriteCallback(onWriteRFID);
   webServer.setReloadColorsCallback(onReloadColors);
+  webServer.setSetColorCallback(onSetManualColor);
   webServer.begin();
   
   Serial.println(F("=== 初始化完成 ===\n"));
