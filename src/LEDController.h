@@ -104,11 +104,12 @@ public:
         // === 呼吸燈模式 ===
         unsigned long elapsed = millis() - breathStartTime;
         
-        // 使用正弦波計算呼吸效果，週期 2500ms
-        // sin 值從 -1 到 1，映射到亮度 50%~100%
-        float angle = (elapsed % 2500) * 2.0 * PI / 2500.0;
+        // 使用正弦波計算呼吸效果，週期 10000ms
+        int drationTime = 10000;
+        // sin 值從 -1 到 1，映射到亮度 25%~100%
+        float angle = (elapsed % drationTime) * 2.0 * PI / drationTime;
         float breath = (sin(angle) + 1.0) / 2.0; // 0.0 ~ 1.0
-        uint8_t brightness = 128 + (127 * breath); // 128 ~ 255 (50%~100%)
+        uint8_t brightness = 96 + (127 * breath); // 96 ~ 255 (37%~100%)
         
         // 應用呼吸效果到當前顏色（不修改 currentLower/Upper）
         leds[0] = currentLower;
