@@ -1,6 +1,7 @@
 # Make elpis flower actually glow
 
 隨便做做,我真的拆了那朵花。
+
 它在盒子裡的時候葉子就斷了。
 
 ---
@@ -21,8 +22,10 @@ ESP32 RFID 智慧花盆專案 - 使用 FastLED 和 MFRC522 實現 RFID 感應與
 ## 開發環境
 
 本專案使用 **PlatformIO** 進行開發。
-本專案使用 Claude AI (Anthropic 開發的 AI 助理) 協助開發。
-> **注意**: Arduino IDE 開發方式將於未來版本中棄用 (deprecated)。建議所有開發者遷移至 PlatformIO 環境。
+
+本專案使用 **Claude AI (Anthropic 開發的 AI 助理)** 協助開發。
+
+> **注意**: 本專案正在遷移中，Arduino IDE 開發方式將於未來版本中棄用 (deprecated)。建議所有開發者遷移至 PlatformIO 環境。
 
 ### 安裝 PlatformIO
 
@@ -102,6 +105,7 @@ elpisFlower/
 - PLD: 藍色/青色
 - MCH: 綠色系
 - AZM: 橙色/黃色
+- (自行增加對應)
 
 ### WiFi 熱點
 ESP32 會建立 WiFi 熱點供使用者連接。
@@ -206,4 +210,4 @@ This project is not affiliated with or endorsed by SQUARE ENIX.
 
 ---
 
-README ver 0.2.0
+README ver 0.2.1
