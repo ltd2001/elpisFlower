@@ -82,6 +82,9 @@ void setup() {
   webServer.begin();
   
   Serial.println(F("=== 初始化完成 ===\n"));
+  
+  // 預設開燈，使用白色
+  ledController.startFade(CRGB::White, CRGB::White);
 }
 
 void loop() {
