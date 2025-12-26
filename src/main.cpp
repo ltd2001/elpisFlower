@@ -59,7 +59,7 @@ void setup() {
   rfidHandler.init();
   
   // 初始化 LittleFS
-  if (!LittleFS.begin()) {
+  if (!LittleFS.begin(true)) {
     Serial.println(F("LittleFS 啟動失敗"));
     return;
   }

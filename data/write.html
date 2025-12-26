@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>寫入 RFID</title>
+</head>
+<body>
+  <h2>寫入 RFID 資料</h2>
+  <form action="/write" method="POST" onsubmit="return confirm('確認寫入 RFID？');">
+    <input type="text" name="data" maxlength="16" required placeholder="輸入資料">
+    <input type="submit" value="寫入">
+  </form>
+  <a href="/">返回</a>
+</body>
+</html>

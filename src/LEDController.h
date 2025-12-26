@@ -12,15 +12,15 @@ private:
   bool isFading = false;
   CRGB targetLower;
   CRGB targetUpper;
-  CRGB currentLower;
-  CRGB currentUpper;
+  CRGB startLower;   // 新增：記錄起始顏色
+  CRGB startUpper;   // 新增：記錄起始顏色
   unsigned long fadeStartTime = 0;
   unsigned long fadeDuration = 0;
   
 public:
   LEDController(CRGB* ledArray, int count) : leds(ledArray), numLeds(count) {
-    currentLower = CRGB::Black;
-    currentUpper = CRGB::Black;
+    startLower = CRGB::Black;
+    startUpper = CRGB::Black;
   }
   
   void init(int brightness = 128) {
@@ -34,23 +34,36 @@ public:
       leds[0] = lower;
       leds[1] = upper;
       FastLED.show();
-      currentLower = lower;
-      currentUpper = upper;
+      startLower = lower;
+      startUpper = upper;
       isFading = false;
     }
   }
   
   void startFade(CRGB lower, CRGB upper) {
+    // 記錄起始顏色（當前顏色）
+    startLower = leds[0];
+    startUpper = leds[1];
+    
+    // 設定目標顏色
     targetLower = lower;
     targetUpper = upper;
+    
+    // 設定漸變參數
     fadeStartTime = millis();
-    // 使用 FastLED 的 random16 產生 3000~5000ms 的隨機時間
-    fadeDuration = 3000 + random16(2001); // 3000 + (0~2000)
+    fadeDuration = 3000 + random16(2001); // 3000~5000ms
     isFading = true;
     
     Serial.print(F("開始漸變，持續時間: "));
     Serial.print(fadeDuration);
     Serial.println(F("ms"));
+    Serial.print(F("從 RGB("));
+    Serial.print(startLower.r); Serial.print(F(","));
+    Serial.print(startLower.g); Serial.print(F(","));
+    Serial.print(startLower.b); Serial.print(F(") 到 RGB("));
+    Serial.print(targetLower.r); Serial.print(F(","));
+    Serial.print(targetLower.g); Serial.print(F(","));
+    Serial.print(targetLower.b); Serial.println(F(")"));
   }
   
   void update() {
@@ -61,28 +74,26 @@ public:
         
         if (elapsed >= fadeDuration) {
           // 漸變完成
-          currentLower = targetLower;
-          currentUpper = targetUpper;
+          leds[0] = targetLower;
+          leds[1] = targetUpper;
           isFading = false;
+          FastLED.show();
           
-          if (numLeds >= 2) {
-            leds[0] = currentLower;
-            leds[1] = currentUpper;
-            FastLED.show();
-          }
           Serial.println(F("漸變完成"));
         } else {
           // 計算漸變進度 (0~255)
           uint8_t progress = (elapsed * 255) / fadeDuration;
           
-          // 使用 FastLED 的 blend 函數進行顏色混合
-          currentLower = blend(currentLower, targetLower, progress);
-          currentUpper = blend(currentUpper, targetUpper, progress);
+          // 從起始顏色漸變到目標顏色
+          leds[0] = blend(startLower, targetLower, progress);
+          leds[1] = blend(startUpper, targetUpper, progress);
+          FastLED.show();
           
-          if (numLeds >= 2) {
-            leds[0] = currentLower;
-            leds[1] = currentUpper;
-            FastLED.show();
+          // 除錯訊息（每秒輸出一次）
+          if (elapsed % 1000 < 20) {
+            Serial.print(F("漸變進度: "));
+            Serial.print((elapsed * 100) / fadeDuration);
+            Serial.println(F("%"));
           }
         }
       }
